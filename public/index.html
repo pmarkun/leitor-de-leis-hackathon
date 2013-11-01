@@ -1,0 +1,73 @@
+<html>
+    <head>
+        <title>Leitor de Leis</title>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/tempo.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="css/base-min.css">
+        <link rel="stylesheet" href="css/grids-min.css">
+        <link rel="stylesheet" href="css/buttons-min.css">
+        <link rel="stylesheet" href="css/forms-min.css">
+        <link rel="stylesheet" href="css/typography.css">
+        
+        <script>
+
+            var tipos = {
+                 'PL' : 'Lei Ordinária'
+            }
+
+            var procurar = function(lei) {
+                l = encodeURI(tipos[lei[0]]+"-"+lei[1]+"-"+lei[2]+".json");
+                $.getJSON("data/"+l, function (data) {
+                    tempo.render(data);
+                    $("#lei article").append(data.raw);
+                    window.location.hash ="#"+ lei[0]+"-"+lei[1]+"-"+lei[2];
+                });
+            }
+            $(document).ready(function () {
+                tempo = Tempo.prepare("lei_container");
+                if (window.location.hash) {
+                    var lei = window.location.hash.slice(1).split('-');
+                    $("#"+lei[0]).prop('selected', true);
+                    $("#numero").val(lei[1]);
+                    $("#ano").val(lei[2]);
+                    procurar(lei);
+            }
+                $("#go").click(function (e) {
+                    e.preventDefault();
+                    lei = [$("#tipo").val(), $("#numero").val(), $("#ano").val()]
+                    procurar(lei);
+                });
+
+            });
+        </script>
+    </head>
+    <body>
+        <div id="lei_container" class="pure-g-r">
+            <div class="pure-u-1-5"></div>
+            <div class="pure-u-3-5">
+                <form class="pure-form">
+                   <select id="tipo" name="tipo" class="pure-input-1-4">
+                        <option id="PL" value="PL">Lei</option>
+                        <!-- <option value="decreto">Decreto</option>
+                        <option value="medida.provisoria">Medida Provisória</option>
+                        <option value="decreto.lei">Decreto Lei</option>-->
+                    </select>
+
+
+                    <input class='pure-input-1-4' type="text" id="numero" name="numero" value="numero"></input>
+                    <input class='pure-input-1-4' type="text" id="ano" name="ano" value="ano" size='4'></input>
+                    <button class='pure-button pure-button-primary pure-button-large' id="go" name="ir">Buscar</button>
+                </form>
+                <div id="lei" data-template>
+                    <h1>{{title}}</h1>
+                    <h2>{{description}}</h2>
+                    <br />
+                    <article>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+
